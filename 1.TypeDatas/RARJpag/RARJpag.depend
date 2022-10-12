@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1665596703 source:/home/viktor/Geek/Otus-C/1.TypeDatas/RARJpag/main.c
+	<stdio.h>
+	<stdlib.h>
+	<inttypes.h>
+
