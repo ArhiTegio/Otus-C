@@ -46,8 +46,8 @@ char* to_string(int number)
     int length = snprintf( NULL, 0, "%d", number );
     char* str = malloc( length + 1 );
     snprintf( str, length + 1, "%d", number );
+
     return str;
-    free(str);
 }
 
 int found_eocd(int fileSize, FILE *stream, EOCD *eodc)
@@ -62,17 +62,68 @@ int found_eocd(int fileSize, FILE *stream, EOCD *eodc)
         {
             pos = offset;
             // Есть контакт!
-            fread(&eodc->diskNumber, sizeof(uint16_t), 1,stream);
-            fread(&eodc->startDiskNumber, sizeof(uint16_t), 1,stream);
-            fread(&eodc->numberCentralDirectoryRecord, sizeof(uint16_t), 1,stream);
-            fread(&eodc->totalCentralDirectoryRecord, sizeof(uint16_t), 1,stream);
-            fread(&eodc->sizeOfCentralDirectory, sizeof(uint32_t), 1,stream);
-            fread(&eodc->centralDirectoryOffset, sizeof(uint32_t), 1,stream);
-            fread(&eodc->commentLength, sizeof(uint16_t), 1,stream);
+            fread(eodc, sizeof(EOCD), 1, stream);
             break;
         }
     }
     return pos;
+}
+
+
+//Вывод строки в hex представлении
+// Usage:
+//     hexDump(desc, addr, len, perLine);
+//         desc:    if non-NULL, printed as a description before hex dump.
+//         addr:    the address to start dumping from.
+//         len:     the number of bytes to dump.
+//         perLine: number of bytes on each output line.
+void hexDump (
+    const char * desc,
+    const void * addr,
+    const int len,
+    int perLine
+) {
+    // Silently ignore silly per-line values.
+    if (perLine < 4 || perLine > 64) perLine = 16;
+    int i;
+    unsigned char buff[perLine+1];
+    const unsigned char * pc = (const unsigned char *)addr;
+    // Output description if given.
+    if (desc != NULL) printf ("%s:\n", desc);
+    // Length checks.
+    if (len == 0) {
+        printf("  ZERO LENGTH\n");
+        return;
+    }
+    if (len < 0) {
+        printf("  NEGATIVE LENGTH: %d\n", len);
+        return;
+    }
+    // Process every byte in the data.
+    for (i = 0; i < len; i++) {
+        // Multiple of perLine means new or first line (with line offset).
+        if ((i % perLine) == 0) {
+            // Only print previous-line ASCII buffer for lines beyond first.
+            if (i != 0) printf ("  %s\n", buff);
+            // Output the offset of current line.
+            printf ("  %04x ", i);
+        }
+        // Now the hex code for the specific character.
+        printf (" %02x", pc[i]);
+        // And buffer a printable ASCII character for later.
+        if ((pc[i] < 0x20) || (pc[i] > 0x7e)) // isprint() may be better.
+            buff[i % perLine] = '.';
+        else
+            buff[i % perLine] = pc[i];
+        buff[(i % perLine) + 1] = '\0';
+    }
+    // Pad out last line if not exactly perLine characters.
+    while ((i % perLine) != 0) {
+        printf ("   ");
+        i++;
+    }
+    // And print the final ASCII buffer.
+    printf ("  %s\n", buff);
 }
 
 void print_array_char(char *arr, int len)
@@ -111,39 +162,45 @@ int get_cdfh(int fileSize, FILE *stream, CentralDirectoryFileHeader *cdfh)
 
             if(cdfh->compressionMethod == 0 || cdfh->compressionMethod == 8)
             {
-                printf("------------------------------\n");
-                printf("signature %X\n", cdfh->signature);
-                printf("versionMadeBy %d\n", cdfh->versionMadeBy);
-                //printf("versionToExtract %d\n", cdfh->versionToExtract);
-                printf("generalPurposeBitFlag %d\n", cdfh->generalPurposeBitFlag);
-                printf("compressionMethod %d\n", cdfh->compressionMethod);
-                printf("modificationTime %d\n", cdfh->modificationTime);
-                printf("modificationDate %d\n", cdfh->modificationDate);
-                printf("crc32 %d\n", cdfh->crc32);
-                printf("compressedSize %d\n", cdfh->compressedSize);
-                printf("uncompressedSize %d\n", cdfh->uncompressedSize);
-                printf("filenameLength %d\n", cdfh->filenameLength);
-                printf("extraFieldLength %d\n", cdfh->extraFieldLength);
+                //Для вывода дополнительных параметров у найденных файлов
+                //printf("------------------------------\n");
+                //printf("signature %X\n", cdfh->signature);
+                //printf("versionMadeBy %d\n", cdfh->versionMadeBy);
+                ////printf("versionToExtract %d\n", cdfh->versionToExtract);
+                //printf("generalPurposeBitFlag %d\n", cdfh->generalPurposeBitFlag);
+                //printf("compressionMethod %d\n", cdfh->compressionMethod);
+                //printf("modificationTime %d\n", cdfh->modificationTime);
+                //printf("modificationDate %d\n", cdfh->modificationDate);
+                //printf("crc32 %d\n", cdfh->crc32);
+                //printf("compressedSize %d\n", cdfh->compressedSize);
+                //printf("uncompressedSize %d\n", cdfh->uncompressedSize);
+                //printf("filenameLength %d\n", cdfh->filenameLength);
+                //printf("extraFieldLength %d\n", cdfh->extraFieldLength);
 
                 fseek(stream, ftell(stream)+1, 0);
                 if(cdfh->filenameLength > 0)
                 {
-                    char *str[cdfh->filenameLength+2];
-                    cdfh->filename = str;
+                    char *str_filename[cdfh->filenameLength+2];
+                    cdfh->filename = str_filename;
                     fgets(cdfh->filename, cdfh->filenameLength+2, stream);
-                    printf("filename: ");
-                    print_array_char(cdfh->filename, cdfh->filenameLength+2);
+
+                    //Проверка hex вывода filename
+                    //hexDump(cdfh->filename, &cdfh->filename, cdfh->filenameLength+1, 16);
+                    //Не выводит название файла
+                    //printf("%.*s\n", cdfh->filenameLength+1, cdfh->filename);
+
+                    print_array_char(cdfh->filename, cdfh->filenameLength+1);
                     printf("\n");
                 }
 
                 if(cdfh->extraFieldLength > 0)
                 {
-                    char *str[cdfh->extraFieldLength+2];
-                    cdfh->extraFild = str;
+                    char *str_extraFild[cdfh->extraFieldLength+2];
+                    cdfh->extraFild = str_extraFild;
                     fgets(cdfh->extraFild, cdfh->extraFieldLength+2, stream);
-                    printf("extraFild: ");
-                    print_array_char(cdfh->extraFild, cdfh->extraFieldLength+2);
-                    printf("\n");
+                    //Для вывода extraFild файла
+                    //print_array_char(cdfh->extraFild, cdfh->extraFieldLength+1);
+                    //printf("\n");
                 }
             }
         }
@@ -154,51 +211,57 @@ int get_cdfh(int fileSize, FILE *stream, CentralDirectoryFileHeader *cdfh)
 
 int main(int argc, char **argv)
 {
-    if(argc > 0)
+    if(argc == 2)
     {
         printf("Name file: %s\n",argv[1]);
         int size_file = 0;
         FILE *file;
         file = fopen(argv[1], "rb");
-        int idx = getc(file);
-        char snum[5];
-        while (idx != EOF)
+        if(file != NULL)
         {
-            idx = getc(file);
-            size_file++;
+            int idx = getc(file);
+            while (idx != EOF)
+            {
+                idx = getc(file);
+                size_file++;
+            }
+
+
+            printf("File size: %s\n", to_string(size_file));
+            printf("sizeof(EOCD) == %ld\n", sizeof(EOCD));
+
+            EOCD eodc = {0};
+            int pos_eodc = found_eocd(size_file, file, &eodc);
+            printf("EOCD signature %d\n", pos_eodc);
+            if(pos_eodc != -1)
+            {
+                CentralDirectoryFileHeader cdfh = {0};
+                printf("centralDirectoryOffset %d\n", eodc.centralDirectoryOffset);
+                printf("commentLength %d\n", eodc.commentLength);
+                printf("diskNumber %d\n", eodc.diskNumber);
+                printf("numberCentralDirectoryRecord %d\n", eodc.numberCentralDirectoryRecord);
+                printf("sizeOfCentralDirectory %d\n", eodc.sizeOfCentralDirectory);
+                printf("startDiskNumber %d\n", eodc.startDiskNumber);
+                printf("totalCentralDirectoryRecord %d\n", eodc.totalCentralDirectoryRecord);
+
+
+                printf("CentralDirectoryFileHeader size = %ld\n", sizeof(CentralDirectoryFileHeader));
+                get_cdfh(size_file, file, &cdfh);
+            }
+            else
+            {
+                printf("Архив не найден.");
+            }
+            fclose(file);
+            free(file);
         }
-
-
-        printf("File size: %s\n", to_string(size_file));
-        printf("sizeof(EOCD) == %d\n", sizeof(EOCD));
-
-        EOCD eodc = {0,0,0,0,0,0,0};
-        int pos_eodc = found_eocd(size_file, file, &eodc);
-        printf("EOCD signature %d\n", pos_eodc);
-        if(pos_eodc != -1)
-        {
-            CentralDirectoryFileHeader cdfh = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-            printf("centralDirectoryOffset %d\n", eodc.centralDirectoryOffset);
-            printf("commentLength %d\n", eodc.commentLength);
-            printf("diskNumber %d\n", eodc.diskNumber);
-            printf("numberCentralDirectoryRecord %d\n", eodc.numberCentralDirectoryRecord);
-            printf("sizeOfCentralDirectory %d\n", eodc.sizeOfCentralDirectory);
-            printf("startDiskNumber %d\n", eodc.startDiskNumber);
-            printf("totalCentralDirectoryRecord %d\n", eodc.totalCentralDirectoryRecord);
-
-
-            printf("CentralDirectoryFileHeader size = %d\n", sizeof(CentralDirectoryFileHeader));
-            get_cdfh(size_file, file, &cdfh);
+        else{
+            printf("Нет такого файла.");
         }
-        else
-        {
-            printf("Архив не найден.");
-        }
-        fclose(file);
     }
     else
     {
-        printf("Test 2\n");
+        printf("Количество аргументов меньше или больше необходимого. Введите имя файла через пробел после имени функции.\n");
     }
 
     return 0;
