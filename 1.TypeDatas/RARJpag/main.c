@@ -134,12 +134,12 @@ void print_array_char(char *arr, int len)
     }
 }
 
-int get_cdfh(int fileSize, FILE *stream, CentralDirectoryFileHeader *cdfh)
+int get_cdfh(long fileSize, FILE *stream, CentralDirectoryFileHeader *cdfh)
 {
-    size_t pos = -1;
+    long pos = -1;
     int signature;
 
-    for (size_t offset = fileSize - sizeof(int); offset >= 0; --offset)
+    for (long offset = fileSize - sizeof(int); offset >= 0; --offset)
     {
         fseek(stream, offset, SEEK_SET);
         fread(&signature, sizeof(int), 1,stream);
@@ -162,34 +162,14 @@ int get_cdfh(int fileSize, FILE *stream, CentralDirectoryFileHeader *cdfh)
 
             if(cdfh->compressionMethod == 0 || cdfh->compressionMethod == 8)
             {
-                //Для вывода дополнительных параметров у найденных файлов
-                //printf("------------------------------\n");
-                //printf("signature %X\n", cdfh->signature);
-                //printf("versionMadeBy %d\n", cdfh->versionMadeBy);
-                ////printf("versionToExtract %d\n", cdfh->versionToExtract);
-                //printf("generalPurposeBitFlag %d\n", cdfh->generalPurposeBitFlag);
-                //printf("compressionMethod %d\n", cdfh->compressionMethod);
-                //printf("modificationTime %d\n", cdfh->modificationTime);
-                //printf("modificationDate %d\n", cdfh->modificationDate);
-                //printf("crc32 %d\n", cdfh->crc32);
-                //printf("compressedSize %d\n", cdfh->compressedSize);
-                //printf("uncompressedSize %d\n", cdfh->uncompressedSize);
-                //printf("filenameLength %d\n", cdfh->filenameLength);
-                //printf("extraFieldLength %d\n", cdfh->extraFieldLength);
-
-                fseek(stream, ftell(stream)+1, 0);
+                fseek(stream, ftell(stream)+2, 0);
                 if(cdfh->filenameLength > 0)
                 {
                     char *str_filename[cdfh->filenameLength+2];
                     cdfh->filename = str_filename;
                     fgets(cdfh->filename, cdfh->filenameLength+2, stream);
 
-                    //Проверка hex вывода filename
-                    //hexDump(cdfh->filename, &cdfh->filename, cdfh->filenameLength+1, 16);
-                    //Не выводит название файла
-                    //printf("%.*s\n", cdfh->filenameLength+1, cdfh->filename);
-
-                    print_array_char(cdfh->filename, cdfh->filenameLength+1);
+                    printf("%.*s\n", cdfh->filenameLength, cdfh->filename);
                     printf("\n");
                 }
 
@@ -198,9 +178,6 @@ int get_cdfh(int fileSize, FILE *stream, CentralDirectoryFileHeader *cdfh)
                     char *str_extraFild[cdfh->extraFieldLength+2];
                     cdfh->extraFild = str_extraFild;
                     fgets(cdfh->extraFild, cdfh->extraFieldLength+2, stream);
-                    //Для вывода extraFild файла
-                    //print_array_char(cdfh->extraFild, cdfh->extraFieldLength+1);
-                    //printf("\n");
                 }
             }
         }
@@ -227,7 +204,7 @@ int main(int argc, char **argv)
             }
 
 
-            printf("File size: %s\n", to_string(size_file));
+            printf("File size: %d\n", size_file);
             printf("sizeof(EOCD) == %ld\n", sizeof(EOCD));
 
             EOCD eodc = {0};
@@ -247,13 +224,13 @@ int main(int argc, char **argv)
 
                 printf("CentralDirectoryFileHeader size = %ld\n", sizeof(CentralDirectoryFileHeader));
                 get_cdfh(size_file, file, &cdfh);
+
             }
             else
             {
                 printf("Архив не найден.");
             }
             fclose(file);
-            free(file);
         }
         else{
             printf("Нет такого файла.");
