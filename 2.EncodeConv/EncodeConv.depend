@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1669571306 source:/home/viktor/Geek/Otus-C/2.EncodeConv/EncodeConv/main.c
+	<stdio.h>
+	<stdlib.h>
+	<sys/stat.h>
+	<stdbool.h>
+
