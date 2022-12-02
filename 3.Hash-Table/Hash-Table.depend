@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1669986290 source:/home/viktor/Geek/Otus-C/Hash-Table/main.c
+	<stdio.h>
+	<stdlib.h>
+	"hash_set.h"
+
+1669982238 /home/viktor/Geek/Otus-C/Hash-Table/hash_set.h
+
+1669986587 source:/home/viktor/Geek/Otus-C/Hash-Table/hash_set.c
+	"hash_set.h"
+	<stdio.h>
+	<stdlib.h>
+
