@@ -1,0 +1,188 @@
+# depslib dependency file v1.0
+1670085683 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/main.c
+	<stdio.h>
+	<stdlib.h>
+	<curl/curl.h>
+	"jansson/jansson.h"
+
+1634212298 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jsmn.h
+	<stddef.h>
+
+1661532575 /home/viktor/Geek/Otus-C/4.WeatherMonitor/mjson.h
+	<stdarg.h>
+	<stdlib.h>
+	<string.h>
+
+1670076506 /home/viktor/Geek/Otus-C/4.WeatherMonitor/lwjson.h
+	<string.h>
+	<stdint.h>
+	"lwjson_opt.h"
+
+1667210606 /home/viktor/Geek/Otus-C/4.WeatherMonitor/lwjson_opt.h
+	"lwjson_opts.h"
+
+1667210606 /home/viktor/Geek/Otus-C/4.WeatherMonitor/lwjson_opts.h
+
+1670080970 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/lwjson.c
+	<string.h>
+	"lwjson.h"
+
+1670076557 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/lwjson_stream.c
+	<string.h>
+	"lwjson.h"
+	<stdio.h>
+
+1670076562 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/lwjson_debug.c
+	<stdio.h>
+	<string.h>
+	"lwjson.h"
+
+1661350248 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/dump.c
+	"jansson_private.h"
+	<assert.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"jansson.h"
+	"strbuffer.h"
+	"utf.h"
+
+1661350248 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/jansson_private.h
+	"hashtable.h"
+	"jansson.h"
+	"jansson_private_config.h"
+	"strbuffer.h"
+	<stddef.h>
+
+1661350248 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/hashtable.h
+	"jansson.h"
+	<stdlib.h>
+
+1661350248 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/jansson.h
+	<stdarg.h>
+	<stdio.h>
+	<stdlib.h>
+	"jansson_config.h"
+
+1661350248 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/jansson_config.h
+
+1661350248 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/jansson_private_config.h
+
+1661350248 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/strbuffer.h
+	"jansson.h"
+	<stdlib.h>
+
+1670082482 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/utf.h
+	<jansson_private_config.h>
+	<stddef.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+
+1670082588 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/error.c
+	<stdio.h>
+	<stdlib.h>
+	"jansson_private.h"
+	<string.h>
+
+1661350248 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/load.c
+	"jansson_private.h"
+	<assert.h>
+	<errno.h>
+	<limits.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"jansson.h"
+	"strbuffer.h"
+	"utf.h"
+
+1661350248 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/memory.c
+	<stdlib.h>
+	<string.h>
+	"jansson.h"
+	"jansson_private.h"
+
+1661350248 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/pack_unpack.c
+	"jansson.h"
+	"jansson_private.h"
+	"utf.h"
+	<string.h>
+
+1661350248 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/strbuffer.c
+	"strbuffer.h"
+	"jansson_private.h"
+	<stdlib.h>
+	<string.h>
+
+1661350248 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/strconv.c
+	"jansson_private.h"
+	"strbuffer.h"
+	<assert.h>
+	<errno.h>
+	<math.h>
+	<stdio.h>
+	<string.h>
+	<jansson_private_config.h>
+	<locale.h>
+
+1661350248 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/version.c
+	"jansson.h"
+
+1661350248 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/utf.c
+	"utf.h"
+	<string.h>
+
+1670082588 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/hashtable_seed.c
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	<jansson_private_config.h>
+	<stdio.h>
+	<time.h>
+	<stdint.h>
+	<fcntl.h>
+	<sched.h>
+	<unistd.h>
+	<sys/stat.h>
+	<sys/time.h>
+	<sys/types.h>
+	<windows.h>
+	"jansson.h"
+	<wincrypt.h>
+
+1670082597 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/hashtable.c
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<jansson_private_config.h>
+	<stdlib.h>
+	<string.h>
+	<stdint.h>
+	"hashtable.h"
+	"jansson_private.h"
+	"jansson_config.h"
+	"lookup3.h"
+
+1661350248 /home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/lookup3.h
+	<stdlib.h>
+	<jansson_private_config.h>
+	<stdint.h>
+	<sys/param.h>
+	<endian.h>
+
+1670082605 source:/home/viktor/Geek/Otus-C/4.WeatherMonitor/jansson/value.c
+	<stdint.h>
+	<jansson_private_config.h>
+	<math.h>
+	<stddef.h>
+	<stdlib.h>
+	<string.h>
+	<stdint.h>
+	"hashtable.h"
+	"jansson.h"
+	"jansson_private.h"
+	"utf.h"
+
