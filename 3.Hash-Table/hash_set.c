@@ -26,12 +26,31 @@ unsigned int hash_func(char *s, unsigned int hash_size)
     return hash % hash_size;
 }
 
+unsigned int hash_func_collision(char *s, unsigned int hash_size)
+{
+    size_t len = sizeof(s)/sizeof(*s);
+    unsigned int hash = 0, i;
+    while(*s)
+    {
+        hash = (hash << 4) + *s++;
+        i = hash & 0xf0000000L;
+        if(i)
+        {
+            hash ^= i >> 16;
+        }
+        hash &= ~i;
+    }
+
+    return hash % hash_size;
+}
+
 
 void addElement(hashset *self, char *element)
 {
     int length = sizeof(self->hashtab) / sizeof(*self->hashtab);
 
     int idx = hash_func(element, length);
+    int idx_collision = hash_func_collision(element, length);
     if (idx != NULL)
     {
         struct listnode *node = NULL;
@@ -40,7 +59,9 @@ void addElement(hashset *self, char *element)
         node->key = element;
         node->value = idx;
         node->count_ = 1;
+        node->idx_collision = idx_collision;
         node->next = NULL;
+        node->collision = NULL;
         node->prev = NULL;
         if(self->head != NULL)
         {
@@ -66,8 +87,47 @@ void addElement(hashset *self, char *element)
 
                 if(node_prev->value == node->value)
                 {
-                    self->hashtab[node->value]->key = node->key;
-                    self->hashtab[node->value]->count_++;
+                    if(node->idx_collision != self->hashtab[node->value]->idx_collision)
+                    {
+                        if(self->hashtab[node->value]->collision == NULL)
+                        {
+                            node->prev = self->hashtab[node->value];
+                            self->hashtab[node->value]->collision = node;
+                            self->length++;
+                        }
+                        else
+                        {
+                            struct listnode *node_collision = NULL;
+                            node_collision = self->hashtab[node->value]->collision;
+
+                            do
+                            {
+                                if(node->idx_collision == node_collision->idx_collision)
+                                {
+                                    node_collision->count_++;
+                                    break;
+                                }
+                                else
+                                {
+                                    if(node_collision->collision == NULL)
+                                    {
+                                        node_collision->collision = node;
+                                        self->length++;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        node_collision = node_collision->collision;
+                                    }
+                                }
+                            }
+                            while(1);
+                        }
+                    }
+                    else
+                    {
+                        self->hashtab[node->value]->count_++;
+                    }
                 }
                 else
                 {
@@ -92,6 +152,7 @@ void removeElement(hashset *self, char *element)
 {
     int length = sizeof(self->hashtab) / sizeof(*self->hashtab);
     int idx = hash_func(element, length);
+    int idx_collision = hash_func_collision(element, length);
     if(self->hashtab[idx] != NULL)
     {
         listnode *node;
@@ -108,9 +169,47 @@ void removeElement(hashset *self, char *element)
             node = self->hashtab[idx];
             if(node->value == self->head->value)
             {
-                self->head->next->prev = NULL;
-                self->head = self->head->next;
-                free(node);
+                if(node->idx_collision == self->head->idx_collision)
+                {
+                    self->head->next->prev = NULL;
+                    self->head = self->head->next;
+                    free(node);
+                }
+                else
+                {
+                    if(node->collision != NULL)
+                    {
+                        struct listnode *node_collision = NULL;
+                        struct listnode *node_collision_prev = NULL;
+
+                        node_collision_prev = self->hashtab[node->value];
+                        node_collision = self->hashtab[node->value]->collision;
+
+                        do
+                        {
+                            if(node_collision->idx_collision == idx_collision)
+                            {
+                                if(node_collision->collision != NULL)
+                                {
+                                    node_collision_prev->collision = node_collision->collision;
+                                }
+                                free(node_collision);
+                            }
+                            else
+                            {
+                                if(node_collision->collision != NULL)
+                                {
+                                    node_collision = node_collision->collision;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        while(1);
+                    }
+                }
             }
             else
             {
@@ -127,7 +226,43 @@ void removeElement(hashset *self, char *element)
 
 listnode* foundElement(hashset *self, char *element)
 {
-    int idx;
+    int length = sizeof(self->hashtab) / sizeof(*self->hashtab);
+    int idx = hash_func(element, length);
+    int idx_collision = hash_func_collision(element, length);
+
+    if(self->hashtab[idx]->idx_collision == idx_collision)
+    {
+        return self->hashtab[idx];
+    }
+    else
+    {
+        struct listnode *node_collision = NULL;
+        if (self->hashtab[idx]->collision != NULL)
+        {
+            node_collision = self->hashtab[idx]->collision;
+            do
+            {
+                if(node_collision->idx_collision == idx_collision)
+                {
+                break;
+                }
+                else
+                {
+                    if(node_collision->collision != NULL)
+                    {
+                        node_collision = node_collision->collision;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            while(1);
+            return node_collision;
+        }
+    }
+
     return self->hashtab[idx];
 }
 
@@ -136,7 +271,8 @@ hashset GetHashTable()
     struct hashset ahashset;
      ahashset.head = NULL;
     int length = sizeof(ahashset.hashtab) / sizeof(*ahashset.hashtab);
-    for (int i = 0; i < length; i++) {
+    for(int i = 0; i < length; i++)
+    {
         ahashset.hashtab[i] = NULL;
     }
 

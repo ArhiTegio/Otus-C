@@ -6,8 +6,10 @@
 typedef struct listnode listnode;
 struct listnode {
     char *key;
+    int idx_collision;
     int count_;
     int value;
+    struct listnode *collision;
     struct listnode *prev;
     struct listnode *next;
 };
@@ -15,6 +17,7 @@ struct listnode {
 typedef struct hashset hashset;
 struct hashset {
     struct listnode *hashtab[1024];
+    struct listnode *hashtab_collision[1024];
     struct listnode *head;
     int length;
     void (*add)(hashset *self, char *element);
