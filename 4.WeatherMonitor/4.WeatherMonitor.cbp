@@ -30,7 +30,56 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-lcurl" />
 		</Compiler>
+		<Linker>
+			<Add option="-lcurl" />
+		</Linker>
+		<Unit filename="jansson/dump.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/error.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/hashtable.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/hashtable.h" />
+		<Unit filename="jansson/hashtable_seed.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/jansson.def" />
+		<Unit filename="jansson/jansson.h" />
+		<Unit filename="jansson/jansson_config.h" />
+		<Unit filename="jansson/jansson_config.h.in" />
+		<Unit filename="jansson/jansson_private.h" />
+		<Unit filename="jansson/load.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/lookup3.h" />
+		<Unit filename="jansson/memory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/pack_unpack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/strbuffer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/strbuffer.h" />
+		<Unit filename="jansson/strconv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/utf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/utf.h" />
+		<Unit filename="jansson/value.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jansson/version.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

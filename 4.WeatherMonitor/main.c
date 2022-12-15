@@ -4,8 +4,6 @@
 #include "jansson/jansson.h"
 
 
-
-
 void print_json(json_t *root);
 void print_json_aux(char *parent_key, char*key, json_t *element, int indent);
 void print_json_indent(int indent);
@@ -22,50 +20,42 @@ void print_json_null(json_t *element, int indent);
 void print_json(json_t *root) { print_json_aux("", "", root, 0); }
 
 void print_json_aux(char *parent_key, char *key, json_t *element, int indent) {
-    //printf("%.*s", key);
-
     switch (json_typeof(element)) {
         case JSON_OBJECT:
-            //print_json_indent(indent + 2);
-            //printf("JSON Key: \"%s\" = ", key);
             print_json_object(key, element, indent);
             break;
         case JSON_ARRAY:
-            //print_json_indent(indent + 2);
-            //printf("JSON Key: \"%s\" = ", key);
             print_json_array(parent_key, key, element, indent);
             break;
         default:
-            //printf("%s\n", key);
-            if(!strcmp(parent_key, "current_condition") || !strcmp(parent_key, "areaName") || !strcmp(parent_key, "country") || !strcmp(parent_key, "astronomy"))
-            if (!strcmp(key, "FeelsLikeC") || !strcmp(key, "pressure") || !strcmp(key, "temp_C") || !strcmp(key, "visibility") || !strcmp(key, "moon_phase") || !strcmp(key, "date") || !strcmp(key, "value"))
-            {
-                //print_json_indent(indent + 2);
-                printf("JSON Key: \"%s\" = ", key);
-                switch (json_typeof(element)) {
+            if(!strcmp(parent_key, "current_condition") || !strcmp(parent_key, "areaName") || !strcmp(parent_key, "country") || !strcmp(parent_key, "astronomy") || !strcmp(parent_key, "lang_ru"))
+                if (!strcmp(key, "FeelsLikeC") || !strcmp(key, "pressure") || !strcmp(key, "temp_C") || !strcmp(key, "visibility") || !strcmp(key, "moon_phase") || !strcmp(key, "date") || !strcmp(key, "value"))
+                {
+                    printf("JSON Key: \"%s\" = ", key);
+                    switch (json_typeof(element)) {
 
-                    case JSON_STRING:
-                        print_json_string(element, indent);
-                        break;
-                    case JSON_INTEGER:
-                        print_json_integer(element, indent);
-                        break;
-                    case JSON_REAL:
-                        print_json_real(element, indent);
-                        break;
-                    case JSON_TRUE:
-                        print_json_true(element, indent);
-                        break;
-                    case JSON_FALSE:
-                        print_json_false(element, indent);
-                        break;
-                    case JSON_NULL:
-                        print_json_null(element, indent);
-                        break;
-                    default:
-                        fprintf(stderr, "unrecognized JSON type %d\n", json_typeof(element));
+                        case JSON_STRING:
+                            print_json_string(element, indent);
+                            break;
+                        case JSON_INTEGER:
+                            print_json_integer(element, indent);
+                            break;
+                        case JSON_REAL:
+                            print_json_real(element, indent);
+                            break;
+                        case JSON_TRUE:
+                            print_json_true(element, indent);
+                            break;
+                        case JSON_FALSE:
+                            print_json_false(element, indent);
+                            break;
+                        case JSON_NULL:
+                            print_json_null(element, indent);
+                            break;
+                        default:
+                            fprintf(stderr, "unrecognized JSON type %d\n", json_typeof(element));
+                    }
                 }
-        }
     }
 }
 
@@ -83,10 +73,8 @@ void print_json_object(char *parent_key, json_t *element, int indent) {
     const char *key;
     json_t *value;
 
-    //print_json_indent(indent);
     size = json_object_size(element);
 
-    //printf("JSON Object of %lld pair%s:\n", (long long)size, json_plural(size));
     json_object_foreach(element, key, value) {
         print_json_aux(parent_key, key, value, indent + 2);
     }
@@ -95,9 +83,7 @@ void print_json_object(char *parent_key, json_t *element, int indent) {
 void print_json_array(char *parent_key, char *key, json_t *element, int indent) {
     size_t i;
     size_t size = json_array_size(element);
-    //print_json_indent(indent);
 
-    //printf("array of %lld element%s:\n", (long long)size, json_plural(size));
     for (i = 0; i < size; i++) {
         print_json_aux(parent_key, key, json_array_get(element, i), indent + 2);
     }
@@ -198,7 +184,6 @@ static size_t WriteFileCallback(void *ptr, size_t size, size_t nmemb, void *stre
 
 
 int main(void) {
-    printf("Hello world!\n");
     CURL *curl;
     CURLcode res;
     curl_global_init(CURL_GLOBAL_ALL);
