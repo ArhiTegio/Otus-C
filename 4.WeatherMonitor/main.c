@@ -182,56 +182,146 @@ static size_t WriteFileCallback(void *ptr, size_t size, size_t nmemb, void *stre
     return written;
 }
 
+void prt_json(json_t *root)
+{
+    json_t *value;
+    json_t *nearest_area = json_object_get(root, "nearest_area");
+    nearest_area = json_array_get(nearest_area, 0);
 
-int main(void) {
-    CURL *curl;
-    CURLcode res;
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
+    value = json_object_get(nearest_area, "region");
+    value = json_array_get(value, 0);
+    value = json_object_get(value, "value");
+    char* txt = json_string_value(value);
+    printf("%s\n", txt);
 
-    struct MemoryStruct readBuffer;
+    value = json_object_get(nearest_area, "country");
+    value = json_array_get(value, 0);
+    value = json_object_get(value, "value");
+    txt = json_string_value(value);
+    printf("%s\n", txt);
 
-    readBuffer.memory = malloc(1);
-    readBuffer.size = 0;
-    long response_code;
-    if(curl)
+    json_t *current_condition = json_object_get(root, "current_condition");
+    current_condition = json_array_get(current_condition, 0);
+
+    json_t *lang_ru = json_object_get(current_condition, "weatherDesc");
+    lang_ru = json_array_get(lang_ru, 0);
+    value = json_object_get(lang_ru, "value");
+    txt = json_string_value(value);
+    printf("Погода - %s\n", txt);
+
+    value = json_object_get(current_condition, "temp_C");
+    txt = json_string_value(value);
+    printf("Температура = %s C\n", txt);
+
+    value = json_object_get(current_condition, "FeelsLikeC");
+    txt = json_string_value(value);
+    printf("Чувствуется как = %s C\n", txt);
+
+    value = json_object_get(current_condition, "pressure");
+    txt = json_string_value(value);
+    printf("Давление = %s\n", txt);
+
+    value = json_object_get(current_condition, "visibility");
+    txt = json_string_value(value);
+    printf("Видимость = %s\n", txt);
+
+    value = json_object_get(current_condition, "localObsDateTime");
+    txt = json_string_value(value);
+    printf("%s\n", txt);
+
+    json_t *weather = json_object_get(root, "weather");
+    weather = json_array_get(weather, 0);
+    json_t *astronomy = json_object_get(weather, "astronomy");
+    astronomy = json_array_get(astronomy, 0);
+    value = json_object_get(astronomy, "moon_illumination");
+    txt = json_string_value(value);
+    printf("Moon_illumination - %s\n", txt);
+
+    value = json_object_get(astronomy, "moon_phase");
+    txt = json_string_value(value);
+    printf("Moon_phase - %s\n", txt);
+
+    value = json_object_get(astronomy, "moonrise");
+    txt = json_string_value(value);
+    printf("Moonrise - %s\n", txt);
+
+    value = json_object_get(astronomy, "moonset");
+    txt = json_string_value(value);
+    printf("Moonset - %s\n", txt);
+
+    value = json_object_get(astronomy, "sunrise");
+    txt = json_string_value(value);
+    printf("Sunrise - %s\n", txt);
+
+    value = json_object_get(astronomy, "sunset");
+    txt = json_string_value(value);
+    printf("Sunset - %s\n", txt);
+}
+
+char* concat(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 1);
+
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
+
+int main(int argc, char **argv) {
+    if(argc == 2)
     {
-        curl_easy_setopt(curl, CURLOPT_URL, "https://wttr.in/Moscow?format=j1");
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&readBuffer);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-        res = curl_easy_perform(curl);  /* Check for errors */
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE,&response_code);
+        CURL *curl;
+        CURLcode res;
+        curl_global_init(CURL_GLOBAL_ALL);
+        curl = curl_easy_init();
 
-        if(res != CURLE_OK)
+        struct MemoryStruct readBuffer;
+
+        readBuffer.memory = malloc(1);
+        readBuffer.size = 0;
+
+        long response_code;
+        if(curl)
         {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            curl_easy_setopt(curl, CURLOPT_URL, concat(concat("https://wttr.in/", argv[1]), "?format=j1"));
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&readBuffer);
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+            res = curl_easy_perform(curl);  /* Check for errors */
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+            if(res != CURLE_OK)
+            {
+                fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            }
+            else {
+                /*
+                 * Now, our chunk.memory points to a memory block that is chunk.size
+                 * bytes big and contains the remote file.
+                 *
+                 * Do something nice with it!
+                 */
+
+                printf("%lu bytes retrieved\n", (unsigned long)readBuffer.size);
+            }
+            curl_easy_cleanup(curl);
         }
-        else {
-            /*
-             * Now, our chunk.memory points to a memory block that is chunk.size
-             * bytes big and contains the remote file.
-             *
-             * Do something nice with it!
-             */
 
-            printf("%lu bytes retrieved\n", (unsigned long)readBuffer.size);
+        printf("Response code %ld\n", response_code);
+
+        json_t *root = load_json_(readBuffer.memory);
+
+        if (root) {
+                prt_json(root);
+                //print_json(root);
+                json_decref(root);
         }
-        curl_easy_cleanup(curl);
+
+        free(readBuffer.memory);
+
+        curl_global_cleanup();
     }
-
-    printf("Response code %d\n", response_code);
-
-    json_t *root = load_json_(readBuffer.memory);
-
-    if (root) {
-            print_json(root);
-            json_decref(root);
-    }
-
-    free(readBuffer.memory);
-
-    curl_global_cleanup();
     return 0;
 }
